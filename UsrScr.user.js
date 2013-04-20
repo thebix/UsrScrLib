@@ -23,7 +23,7 @@ window.addEventListener ("load", function(){
 	//reddit.com
 	UsrScr.Helper.AddTask("reddit.com", function(){
 		//console.log($("div.thing.odd.link").find("a.title.loggedin"));
-		$("div.thing.odd.link").find("a.title.loggedin").each(function(i,a){
+		$("div.thing.link").find("a.title.loggedin").each(function(i,a){
 	        var url = $(a).attr("href");
 	        //console.log(url);
 	        //if(i < 2){
