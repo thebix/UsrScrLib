@@ -12,7 +12,8 @@ window.addEventListener ("load", function(){
 	//INFO: OPTIONS HERE
 	UsrScr.Helper.Init({
 		UseJquery: true, 					//opt(def=false)
-		ScriptStartConfirmation: true		//opt(def=false), ask user to run script
+		ScriptStartConfirmation: true,		//opt(def=false), ask user to run script
+		OnlyOneScrInstanceTimeLimit: 35,	//opt(def=0), don't run other instances of this script for time in sec  
 	});
 
 	//INFO: CUSTOM LOGIC HERE
@@ -26,7 +27,7 @@ window.addEventListener ("load", function(){
 		$("div.thing.link").find("a.title.loggedin").each(function(i,a){
 	        var url = $(a).attr("href");
 	        //console.log(url);
-	        //if(i < 2){
+	        //if(i < 15){
 		    	window.open(url, "_blank"); 
 		    //}    	
 		});
@@ -42,19 +43,29 @@ var UsrScr = UsrScr || {};
 UsrScr.Helper = UsrScr.Helper || (function (){
 	var InitParams = {};
 	var Tasks = {};
+	var COOKIE_KEY_TASKS_IN_PROGRESS = "UsrScrTasksInProgressState";
 
 	/******** Public ********/
 	var init = function(params){
 		if(params)
 			InitParams = params;
+
+		if(!InitParams.OnlyOneScrInstanceTimeLimit) {
+			InitParams.OnlyOneScrInstanceTimeLimit = 0;
+		}
 	}
 
 	addTask = function(url, task){
 		Tasks[url] = task;
 	}
 
-	/******** Private ********/
+	
 	var execute = function(jQueryAdded){
+		if(getCookie(COOKIE_KEY_TASKS_IN_PROGRESS)){
+			return;
+		}
+
+		setCookie(COOKIE_KEY_TASKS_IN_PROGRESS, true, InitParams.OnlyOneScrInstanceTimeLimit);
 		if(!jQueryAdded && InitParams.UseJquery == true){
 			addJquery();
 		} else {
@@ -62,6 +73,7 @@ UsrScr.Helper = UsrScr.Helper || (function (){
 		}
 	}
 
+	/******** Private ********/
 	var executeTasks = function(){
 		for (var key in Tasks) {
         	if (Tasks.hasOwnProperty(key) && typeof Tasks[key] == 'function' && isTaskEnabledOnSite(key)) {
@@ -115,6 +127,34 @@ UsrScr.Helper = UsrScr.Helper || (function (){
 			return true;
 		}
 		return false;
+	}
+	/******** Misc ********/
+	function setCookie(c_name,value,exsecs)
+	{
+		var exdate=new Date();
+		//exdate.setDate(exdate.getDate() + exdays);
+		exdate.setSeconds(exdate.getSeconds() + exsecs);
+		var c_value=escape(value) + ((exsecs==null) ? "" : "; expires="+exdate.toUTCString());
+		document.cookie=c_name + "=" + c_value;
+	}
+	function getCookie(c_name)
+	{
+		var c_value = document.cookie;
+		var c_start = c_value.indexOf(" " + c_name + "=");
+		if (c_start == -1){
+			c_start = c_value.indexOf(c_name + "=");
+		}
+		if (c_start == -1){
+		  	c_value = null;
+		}else{
+		  	c_start = c_value.indexOf("=", c_start) + 1;
+		  	var c_end = c_value.indexOf(";", c_start);
+		  	if (c_end == -1){
+				c_end = c_value.length;
+			}
+			c_value = unescape(c_value.substring(c_start,c_end));
+		}
+		return c_value;
 	}
 	/******** Public ********/
 	return {
