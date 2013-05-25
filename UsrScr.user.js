@@ -13,7 +13,7 @@ window.addEventListener ("load", function(){
 	UsrScr.Helper.Init({
 		UseJquery: true, 					//opt(def=false)
 		ScriptStartConfirmation: true,		//opt(def=false), ask user to run script
-		OnlyOneScrInstanceTimeLimit: 35,	//opt(def=0), don't run other instances of this script for time in sec  
+		OnlyOneScrInstanceTimeLimit: 75,	//opt(def=0), don't run other instances of this script for time in sec  
 	});
 
 	//INFO: CUSTOM LOGIC HERE
